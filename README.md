@@ -1,75 +1,62 @@
-# Candidate Takehome Exercise
-This is a simple backend engineer take-home test to help assess candidate skills and practices.  We appreciate your interest in Voodoo and have created this exercise as a tool to learn more about how you practice your craft in a realistic environment.  This is a test of your coding ability, but more importantly it is also a test of your overall practices.
+# Voodoo task
+## About the practical tasks:
+- For task B I decided to avoid repeated values in the database if we populate the same Given the limited time of the exercise, I decided not to refactor anything.
+- I hadn't enough time to refactor but I would like to make some small refactors.# Theory answers
+### Question 1
+__We are planning to put this project in production. According to you, what are the missing pieces to make this project production ready? Please elaborate an action plan.__
 
-If you are a seasoned Node.js developer, the coding portion of this exercise should take no more than 1-2 hours to complete.  Depending on your level of familiarity with Node.js, Express, and Sequelize, it may not be possible to finish in 2 hours, but you should not spend more than 2 hours.  
+I decided to separate the improvements/missing pieces in:- Performance & architecture- Quality of the code - Others
 
-We value your time, and you should too.  If you reach the 2 hour mark, save your progress and we can discuss what you were able to accomplish. 
+#### Performance & architecture
+Let's imagine that these are the numbers:In 2022 we will have:
+- 3.2 Millions APPs in GooglePlay, 
+- 2.110 Milions APPS in IOs, 
+- 500.000 in Amazon Store.
+- I don't have clear numbers about APPs in china but it has about 400 android app stores but only 10 hold the 90% of market. Le'ts imagine that all the APPs in all the marketplaces in China sum up another 6.000 Milion apps.
 
-The theory portions of this test are more open-ended.  It is up to you how much time you spend addressing these questions.  We recommend spending less than 1 hour.  
+It makes a total of about __12.000 Milions apps__ approx.
+I assume that the frequency of the __Updates + Posts__ in the API should be __"low"__ but the total __search & get queries__ of apps should be __"high"__ but __not as high as an external__ system. In the same way, I imagine that almost all of the queries should come from the API not from te web UI.
+
+Having this numbers in consideration, I decided to:
+
+- __Remove the database__ from the API server nodes to a dedicated database server. For that, a good idea should be migrating into a MySQL database or Postgresql database. Better than that we could use an ElasticSearch database but let's imagine that we don't want to complicate too much the system. Migrating to another SQL database should be a good Idea because we can reuse almost all the code and we can still use sequelize.With the database apart, we can also create database read-only nodes.
+- __Scale horizontally__ the API server. With the database outside of the server this task should be easy to accomplish.
+- Create a cache layer to cache the last searches. Probably it's not needed and it will complicate more our code but it could be a good idea to scale.
+
+#### Quality of the code
+Even the simplicity of the project should be a good idea to split the code by responsibilities. Having for example:
+- Routes: file for defining all endpoints.
+- Controllers: Taking care about the parameters and preparing the data for the domain layer.
+- Services: take apart all the database queries into services.
+
+More aspects of the code quality should be:
+
+- Avoid __adding the models by reading a folder and dynamically__ requiring the models. We have the index file inside the models folder, we can use it to collect all the models and add it there.
+- Avoid the use of __require with __dirname__ (the config file). We can do it relative to the project root.
+- __Separate the frontend part__. I don't consider that point a performance because of the reduced number of queries that I assume we will have but it could be a good idea to separate that part to allow the teams to work on it independently.- Migrate to typescript. It will help to make more maintainable code.
+
+### Others
+- Logs: we need logs. It's basically to find errors and also to know what the user does.
+- Monitoring: we need to know what is the status of the system and what is the performance.
+- Documentation: we need to know how to use the API. I suggest the use of Swagger.
+- Security: I'm assuming that the server is in an internal vpn or something like that. Even that, it should be a good idea to protect the POSTS and PUT calls at least with a user login.
+- Deployment: We can prepare some docker compose files to simplyfy the deployment process.
 
 
-For the record, we are not testing to see how much free time you have, so there will be no extra credit for monumental time investments.  We are looking for concise, clear answers that demonstrate domain expertise.
 
-# Project Overview
-This project is a simple game database and consists of 2 components.  
+## Question 2
+__Let's pretend our data team is now delivering new files every day into the S3 bucket, and our service needs to ingest those filesevery day through the populate API. Could you describe a suitable solution to automate this? Feel free to propose architectural changes.__
 
-The first component is a VueJS UI that communicates with an API and renders data in a simple browser-based UI.
+- The easiest option should be having a server/process that triggers a cron job every day that activates API endpoint api/games/populate.
+- The second option could be removing the populate API and using a lambda function that is triggered every day.
 
-The second component is an Express-based API server that queries and delivers data from an SQLite data source, using the Sequelize ORM.
+## Question 3:
+__Both the current database schema and the files dropped in the S3 bucket are not optimal.Can you find ways to improve them?__
+- We can create a new table to define the platforms and then make a foreging key to the platforms table.
+- The data of the storeId and publisherId should have the same format in both platforms. We can change one of the feeds to have the same format.
+- The S3 files have 3 values for each Game, we can remove the second and third because we don't need them.
+- We are receiving a lot of fields that are not used. We can remove them.
 
-This code is not necessarily representative of what you would find in a Voodoo production-ready codebase.  However, this type of stack is in regular use at Voodoo.
-
-# Project Setup
-You will need to have Node.js, NPM, and git installed locally.  You should not need anything else.
-
-To get started, initialize a local git repo by going into the root of this project and running `git init`.  Then run `git add .` to add all of the relevant files.  Then `git commit` to complete the repo setup.  You will send us this repo as your final product.
-  
-Next, in a terminal, run `npm install` from the project root to initialize your dependencies.
-
-Finally, to start the application, navigate to the project root in a terminal window and execute `npm start`
-
-You should now be able to navigate to http://localhost:3000 and view the UI.
-
-You should also be able to communicate with the API at http://localhost:3000/api/games
-
-If you get an error like this when trying to build the project: `ERROR: Please install sqlite3 package manually` you should run `npm rebuild` from the project root.
-
-# Practical Assignments
-Pretend for a moment that you have been hired to work at Voodoo.  You have grabbed your first tickets to work on an internal game database application. 
-
-#### FEATURE A: Add Search to Game Database
-The main users of the Game Database have requested that we add a search feature that will allow them to search by name and/or by platform.  The front end team has already created UI for these features and all that remains is for the API to implement the expected interface.  The new UI can be seen at `/search.html`
-
-The new UI sends 2 parameters via POST to a non-existent path on the API, `/api/games/search`
-
-The parameters that are sent are `name` and `platform` and the expected behavior is to return results that match the platform and match or partially match the name string.  If no search has been specified, then the results should include everything (just like it does now).
-
-Once the new API method is in place, we can move `search.html` to `index.html` and remove `search.html` from the repo.
-
-#### FEATURE B: Populate your database with the top 100 apps
-Add a populate button that calls a new route `/api/games/populate`. This route should populate your database with the top 100 games in the App Store and Google Play Store.
-To do this, our data team have put in place 2 files at your disposal in an S3 bucket in JSON format:
-
-- https://interview-marketing-eng-dev.s3.eu-west-1.amazonaws.com/android.top100.json
-- https://interview-marketing-eng-dev.s3.eu-west-1.amazonaws.com/ios.top100.json
-
-# Theory Assignments
-You should complete these only after you have completed the practical assignments.
-
-The business goal of the game database is to provide an internal service to get data for all apps from all app stores.  
-Many other applications at Voodoo will use consume this API.
-
-#### Question 1:
-We are planning to put this project in production. According to you, what are the missing pieces to make this project production ready? 
-Please elaborate an action plan.
-
-#### Question 2:
-Let's pretend our data team is now delivering new files every day into the S3 bucket, and our service needs to ingest those files
-every day through the populate API. Could you describe a suitable solution to automate this? Feel free to propose architectural changes.
-
-#### Question 3:
-Both the current database schema and the files dropped in the S3 bucket are not optimal.
-Can you find ways to improve them?
 
 
 
