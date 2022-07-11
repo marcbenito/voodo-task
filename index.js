@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios').default;
+
 const db = require('./models');
 
 const { Op } = db.Sequelize;
@@ -80,6 +82,44 @@ app.put('/api/games/:id', async (req, res) => {
     return res.status(400).send(err);
   }
 });
+
+async function populate(path) {
+  const { data } = await axios.get(path);
+
+  data.forEach( async element => {
+    let game = element[0];
+    let haveGame =await  db.Game.findAll({
+      where: {
+        name: game.name,
+      platform: game.os,
+      storeId: game.appId
+      }
+    });
+    if(haveGame.length === 0) {
+      await db.Game.create({
+        publisherId: game.publisher_id,
+        name: game.name,
+        platform: game.os,
+        storeId: game.appId,
+        bundleId: game.bundle_id,
+        appVersion: game.version,
+        isPublished: true
+      });
+
+    }
+  });
+}
+app.post('/api/games/populate', async (req, res) => {
+  try {
+
+    await populate('https://interview-marketing-eng-dev.s3.eu-west-1.amazonaws.com/android.top100.json')
+    await populate('https://interview-marketing-eng-dev.s3.eu-west-1.amazonaws.com/ios.top100.json')
+    res.sendStatus(201);
+  } catch (err) {
+    console.error('***Error updating game', err);
+    return res.status(400).send(err);
+  }
+})
 
 app.listen(3000, () => {
   console.log('Server is up on port 3000');

@@ -185,3 +185,12 @@ describe('GET /api/games', () => {
     });
 });
 
+
+describe('POST /api/games/populate', () => {
+    it('respond with json containing no games', async () => {
+        const {  status } = await request(app)
+            .post('/api/games/populate')
+            .set('Accept', 'application/json')
+        assert.strictEqual(status, 201);
+    });
+});
