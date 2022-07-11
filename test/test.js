@@ -51,6 +51,84 @@ describe('GET /api/games', () => {
 });
 
 
+
+
+/**
+ * Testing SEARCH all games endpoint
+ */
+
+
+describe('POST /api/games/search',async () => {
+
+
+        it(' name = Test App and platform = ios responds with 1 game', async () => {
+            let data = {
+                name: 'Test App',
+                platform: 'ios'
+            }
+            const { body, status } = await request(app)
+                .post('/api/games/search')
+                .set('Accept', 'application/json')
+                .send(data)
+            assert.strictEqual(status, 200);
+            assert.strictEqual(body.length, 1);
+            assert.strictEqual(body[0].name, 'Test App');
+            assert.strictEqual(body[0].platform, 'ios');
+            assert.strictEqual(body[0].storeId, '1234');
+            assert.strictEqual(body[0].bundleId, 'test.bundle.id');
+            assert.strictEqual(body[0].appVersion, '1.0.0');
+            assert.strictEqual(body[0].isPublished, true);
+        });
+    
+        it(' name = Test App and platform = android responds with 1 game', async () => {
+            let data = {
+                name: 'Test App',
+                platform: 'android'
+            }
+            const { body, status } = await request(app)
+                .post('/api/games/search')
+                .set('Accept', 'application/json')
+                .send(data)
+            assert.strictEqual(status, 200);
+            assert.strictEqual(body.length, 0);
+        });
+        it(' name = not_found  App and platform = ios responds with 0 game', async () => {
+            let data = {
+                name: 'Not found',
+                platform: 'ios'
+            }
+            const { body, status } = await request(app)
+                .post('/api/games/search')
+                .set('Accept', 'application/json')
+                .send(data)
+            assert.strictEqual(status, 200);
+            assert.strictEqual(body.length, 0);
+        });
+        it('platform = ios and no name responds with 1 game', async () => {
+            let data = {
+                platform: 'ios'
+            }
+            const { body, status } = await request(app)
+                .post('/api/games/search')
+                .set('Accept', 'application/json')
+                .send(data)
+            assert.strictEqual(status, 200);
+            assert.strictEqual(body.length, 1);
+        });
+        it('No parameters  responds with 1 game', async () => {
+            let data = {
+                platform: '',
+                name: ''
+            }
+            const { body, status } = await request(app)
+                .post('/api/games/search')
+                .set('Accept', 'application/json')
+                .send(data)
+            assert.strictEqual(status, 200);
+            assert.strictEqual(body.length, 1);
+        });
+});
+
 /**
  * Testing update game endpoint
  */

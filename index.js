@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
 
+const { Op } = db.Sequelize;
 const app = express();
 
 app.use(bodyParser.json());
@@ -17,6 +18,32 @@ app.get('/api/games', async (req, res) => {
     return res.send(err);
   }
 })
+
+app.post('/api/games/search', async (req, res) => {
+
+  const { name, platform } = req.body;
+  let whereClauses = {};
+  if (name && platform) {
+    whereClauses = { [Op.and]: [{ name: { [Op.like]: `%${name}%` } }, { platform  }] }
+  }
+  else if (name && !platform) {
+    whereClauses = { name: { [Op.like]: `%${name}%` } }
+  }
+  else if (!name && platform) {
+    whereClauses = { platform }
+  }
+
+  try {
+    const games = await db.Game.findAll({
+      where: whereClauses
+    })
+    return res.send(games)
+  } catch (err) {
+    console.error('***Error Searching games game', err);
+    return res.status(400).send(err);
+  }
+});
+
 
 app.post('/api/games', async (req, res) => {
   const { publisherId, name, platform, storeId, bundleId, appVersion, isPublished } = req.body;
