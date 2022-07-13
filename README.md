@@ -24,6 +24,8 @@ Having this numbers in consideration, I decided to:
 - Create a cache layer to cache the last searches. Probably it's not needed and it will complicate more our code but it could be a good idea to scale.
 
 #### Quality of the code
+- Search endpoint should be done with GET.
+
 Even the simplicity of the project should be a good idea to split the code by responsibilities. Having for example:
 - Routes: file for defining all endpoints.
 - Controllers: Taking care about the parameters and preparing the data for the domain layer.

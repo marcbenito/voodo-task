@@ -1,11 +1,26 @@
 const request = require('supertest');
 const assert = require('assert');
-const app = require('../index');
+const App = require('../dist/src/app').default;
+
+
+
+
 
 /**
  * Testing create game endpoint
  */
+let app;
+beforeEach( async (done) => {
+       
+
+    app = new App();
+    await app.init();
+    await app.listen();
+    app = app.app;
+    
+})
 describe('POST /api/games', () => {
+
     let data = {
         publisherId: "1234567890",
         name: "Test App",
@@ -15,7 +30,8 @@ describe('POST /api/games', () => {
         appVersion: "1.0.0",
         isPublished: true
     }
-    it('respond with 200 and an object that matches what we created', async () => {
+    it.only('respond with 200 and an object that matches what we created', async () => {
+
         const { body, status } = await request(app)
             .post('/api/games')
             .set('Accept', 'application/json')
