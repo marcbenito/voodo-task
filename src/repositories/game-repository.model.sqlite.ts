@@ -1,6 +1,9 @@
 
-module.exports = (sequelize, DataTypes) => {
-  const Game = sequelize.define('Game', {
+import sequelize from './database';
+import { DataTypes } from 'sequelize';
+
+
+  const GameDbModel = sequelize.define('Game', {
     publisherId: DataTypes.STRING,
     name: DataTypes.STRING,
     platform: DataTypes.STRING,
@@ -9,5 +12,6 @@ module.exports = (sequelize, DataTypes) => {
     appVersion: DataTypes.STRING,
     isPublished: DataTypes.BOOLEAN,
   }, {});
-  return Game;
-};
+
+
+  export default GameDbModel;

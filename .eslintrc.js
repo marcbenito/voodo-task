@@ -5,10 +5,9 @@ module.exports = {
         node: true,
         es6: true,
     },
-    "extends": [
-        'airbnb-base',
-        "eslint:recommended",
-        "plugin:vue/recommended"
+    parser: "@typescript-eslint/parser",
+    extends: [
+        'plugin:@typescript-eslint/recommended'
     ],
     rules: {
         'linebreak-style': 0,
@@ -22,5 +21,9 @@ module.exports = {
     },
     parserOptions: {
         ecmaVersion: 2018,
+        sourceType: 'module'
     },
+    rules: {
+        '@typescript-eslint/no-explicit-any': 'error'
+      }
 };
